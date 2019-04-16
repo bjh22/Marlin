@@ -193,9 +193,6 @@
 
     #define LCD_SDSS        P0_16   // (16) J3-7 & AUX-4
 
-    #define LCD_PINS_ENABLE P1_18
-    #define LCD_PINS_D4     P1_20
-
   #else
 
     #define LCD_PINS_RS     P1_19
