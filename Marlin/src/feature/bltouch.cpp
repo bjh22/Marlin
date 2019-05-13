@@ -96,21 +96,9 @@ bool BLTouch::deploy_proc() {
     }
   }
 
-<<<<<<< HEAD
-  #if ENABLED(BLTOUCH_V3)
-    #if  EITHER(BLTOUCH_FORCE_5V_MODE, ENDSTOPPULLUPS) \
-      || ALL(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, ENDSTOPPULLUP_ZMIN) \
-      || (USES_Z_MIN_PROBE_ENDSTOP && ENABLED(ENDSTOPPULLUP_ZMIN_PROBE))
-      //set_5V_mode();  // Assume 5V DC logic level if endstop pullup resistors are enabled
-    #elif true || ENABLED(BLTOUCH_FORCE_OPEN_DRAIN_MODE)
-      set_OD_mode();
-    #endif
-  #endif
-=======
   // Now the probe is ready to issue a 10ms pulse when the pin goes up.
   // The trigger STOW (see motion.cpp for example) will pull up the probes pin as soon as the pulse
   // is registered.
->>>>>>> bugfix-2.0.x
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLN("bltouch.deploy_proc() end");
 

@@ -832,26 +832,15 @@
  */
 #define BLTOUCH
 #if ENABLED(BLTOUCH)
-<<<<<<< HEAD
-  #define BLTOUCH_DELAY 1000   // (ms) Enable and increase if needed
-=======
-  //#define BLTOUCH_DELAY 500   // Minimum Command delay (ms). Enable and increase if needed
->>>>>>> bugfix-2.0.x
+  #define BLTOUCH_DELAY 500   // (ms) Enable and increase if needed
 
   /**
    * BLTouch V3.0 and newer smart series
    * For genuine BLTouch 3.0 sensors. Clones may be confused by 3.0 command angles. YMMV.
    * If the pin trigger is not detected, first try swapping the black and white wires then toggle this.
    */
-<<<<<<< HEAD
-  #define BLTOUCH_V3
-  #if ENABLED(BLTOUCH_V3)
+
     //#define BLTOUCH_FORCE_5V_MODE
-    #define BLTOUCH_FORCE_OPEN_DRAIN_MODE
-  #endif
-=======
-  //#define BLTOUCH_FORCE_5V_MODE
->>>>>>> bugfix-2.0.x
 #endif
 
 // A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)
@@ -1376,7 +1365,6 @@
 
 // @section extras
 
-<<<<<<< HEAD
 //
 // EEPROM
 //
@@ -1388,23 +1376,6 @@
 #define EEPROM_SETTINGS // Enable for M500 and M501 commands
 //#define DISABLE_M503    // Saves ~2700 bytes of PROGMEM. Disable for release!
 #define EEPROM_CHITCHAT   // Give feedback on EEPROM commands. Disable to save PROGMEM.
-=======
-/**
- * EEPROM
- *
- * Persistent storage to preserve configurable settings across reboots.
- *
- *   M500 - Store settings to EEPROM.
- *   M501 - Read settings from EEPROM. (i.e., Throw away unsaved changes)
- *   M502 - Revert settings to "factory" defaults. (Follow with M500 to init the EEPROM.)
- */
-//#define EEPROM_SETTINGS     // Persistent storage with M500 and M501
-//#define DISABLE_M503        // Saves ~2700 bytes of PROGMEM. Disable for release!
-#define EEPROM_CHITCHAT       // Give feedback on EEPROM commands. Disable to save PROGMEM.
-#if ENABLED(EEPROM_SETTINGS)
-  //#define EEPROM_AUTO_INIT  // Init EEPROM automatically on any errors.
-#endif
->>>>>>> bugfix-2.0.x
 
 //
 // Host Keepalive
