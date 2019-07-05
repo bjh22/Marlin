@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
  */
 
 /**
- * extui_malyan_lcd.cpp
+ * malyanlcd.cpp
  *
  * LCD implementation for Malyan's LCD, a separate ESP8266 MCU running
  * on Serial1 for the M200 board. This module outputs a pseudo-gcode
@@ -113,8 +113,7 @@ void write_to_lcd(const char * const message) {
  */
 void process_lcd_c_command(const char* command) {
   switch (command[0]) {
-    case 'C': // Cope with both V1 early rev and later LCDs.
-    case 'S': {
+    case 'C': {
       int raw_feedrate = atoi(command + 1);
       feedrate_percentage = raw_feedrate * 10;
       feedrate_percentage = constrain(feedrate_percentage, 10, 999);
@@ -145,7 +144,7 @@ void process_lcd_eb_command(const char* command) {
   switch (command[0]) {
     case '0': {
       elapsed = print_job_timer.duration();
-      sprintf_P(elapsed_buffer, PSTR("%02u%02u%02u"), uint16_t(elapsed.hour()), uint16_t(elapsed.minute()) % 60, uint16_t(elapsed.second()) % 60);
+      sprintf_P(elapsed_buffer, PSTR("%02u%02u%02u"), uint16_t(elapsed.hour()), uint16_t(elapsed.minute()) % 60UL, elapsed.second());
 
       char message_buffer[MAX_CURLY_COMMAND];
       sprintf_P(message_buffer,
@@ -191,8 +190,8 @@ void process_lcd_j_command(const char* command) {
     case 'E':
       // enable or disable steppers
       // switch to relative
-      queue.enqueue_now_P(PSTR("G91"));
-      queue.enqueue_now_P(steppers_enabled ? PSTR("M18") : PSTR("M17"));
+      enqueue_and_echo_commands_now_P(PSTR("G91"));
+      enqueue_and_echo_commands_now_P(steppers_enabled ? PSTR("M18") : PSTR("M17"));
       steppers_enabled = !steppers_enabled;
       break;
     case 'A':
@@ -205,7 +204,7 @@ void process_lcd_j_command(const char* command) {
       // The M200 class UI seems to send movement in .1mm values.
       char cmd[20];
       sprintf_P(cmd, PSTR("G1 %c%03.1f"), axis, atof(command + 1) / 10.0);
-      queue.enqueue_one_now(cmd);
+      enqueue_and_echo_command_now(cmd);
     } break;
     default:
       SERIAL_ECHOLNPAIR("UNKNOWN J COMMAND", command);
@@ -248,7 +247,7 @@ void process_lcd_p_command(const char* command) {
             true
           #endif
         );
-        queue.clear();
+        clear_command_queue();
         quickstop_stepper();
         print_job_timer.stop();
         thermalManager.disable_all_heaters();
@@ -259,7 +258,7 @@ void process_lcd_p_command(const char* command) {
       break;
     case 'H':
       // Home all axis
-      queue.enqueue_now_P(PSTR("G28"));
+      enqueue_and_echo_commands_now_P(PSTR("G28"));
       break;
     default: {
       #if ENABLED(SDSUPPORT)
@@ -319,6 +318,11 @@ void process_lcd_s_command(const char* command) {
       );
       write_to_lcd(message_buffer);
     } break;
+
+    case 'H':
+      // Home all axis
+      enqueue_and_echo_command("G28");
+      break;
 
     case 'L': {
       #if ENABLED(SDSUPPORT)
@@ -461,7 +465,7 @@ namespace ExtUI {
       // issue a percent of 0.
       const uint8_t percent_done = IS_SD_PRINTING() ? card.percentDone() : last_printing_status ? 100 : 0;
       if (percent_done != last_percent_done) {
-        char message_buffer[16];
+        char message_buffer[10];
         sprintf_P(message_buffer, PSTR("{TQ:%03i}"), percent_done);
         write_to_lcd(message_buffer);
         last_percent_done = percent_done;
@@ -470,15 +474,14 @@ namespace ExtUI {
     #endif
   }
 
-  // {E:<msg>} is for error states.
-  void onPrinterKilled(PGM_P msg) {
+  void onStatusChanged(const char * const msg) {
     write_to_lcd_P(PSTR("{E:"));
-    write_to_lcd_P(msg);
+    write_to_lcd(msg);
     write_to_lcd_P("}");
   }
 
   // Not needed for Malyan LCD
-  void onStatusChanged(const char * const msg) { UNUSED(msg); }
+  void onPrinterKilled(PGM_P const msg) { UNUSED(msg); }
   void onMediaInserted() {};
   void onMediaError() {};
   void onMediaRemoved() {};

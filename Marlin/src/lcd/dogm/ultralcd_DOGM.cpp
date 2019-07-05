@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,7 +48,6 @@
 
 #include "../lcdprint.h"
 #include "../fontutils.h"
-#include "../../libs/numtostr.h"
 #include "../ultralcd.h"
 
 #include "../../sd/cardreader.h"
@@ -419,7 +418,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
         onpage = PAGE_CONTAINS(baseline - (EDIT_FONT_ASCENT - 1), baseline);
       }
       if (onpage) {
-        lcd_moveto(((lcd_chr_fit - 1) - (vallen + 1)) * one_chr_width, baseline); // Right-justified, leaving padded by spaces
+        lcd_moveto((lcd_chr_fit - (vallen + 1)) * one_chr_width, baseline); // Right-justified, leaving padded by spaces
         lcd_put_wchar(' '); // overwrite char if value gets shorter
         lcd_put_u8str(value);
       }

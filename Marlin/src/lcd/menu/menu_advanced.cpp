@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,11 +41,6 @@
 
 #if ENABLED(PIDTEMP)
   #include "../../module/temperature.h"
-#endif
-
-#ifdef FILAMENT_RUNOUT_DISTANCE_MM
-  #include "../../feature/runout.h"
-  float lcd_runout_distance_mm;
 #endif
 
 void menu_tmc();
@@ -101,7 +96,7 @@ void menu_backlash();
   // Set the home offset based on the current_position
   //
   void _lcd_set_home_offsets() {
-    queue.inject_P(PSTR("M428"));
+    enqueue_and_echo_commands_P(PSTR("M428"));
     ui.return_to_status();
   }
 #endif
@@ -219,12 +214,6 @@ void menu_backlash();
       #endif // EXTRUDERS > 1
     #endif
 
-    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
-      MENU_ITEM_EDIT_CALLBACK(float3, MSG_RUNOUT_DISTANCE_MM, &lcd_runout_distance_mm, 1, 30, []{
-        runout.set_runout_distance(lcd_runout_distance_mm);
-      });
-    #endif
-
     END_MENU();
   }
 
@@ -255,7 +244,7 @@ void menu_backlash();
         autotune_temp[e]
       #endif
     );
-    lcd_enqueue_one_now(cmd);
+    lcd_enqueue_command(cmd);
   }
 
 #endif // PID_AUTOTUNE_MENU
@@ -614,9 +603,6 @@ void menu_backlash();
 #endif // !SLIM_LCD_MENUS
 
 void menu_advanced_settings() {
-  #ifdef FILAMENT_RUNOUT_DISTANCE_MM
-    lcd_runout_distance_mm = runout.runout_distance();
-  #endif
   START_MENU();
   MENU_BACK(MSG_CONFIGURATION);
 
@@ -688,7 +674,7 @@ void menu_advanced_settings() {
   #endif
 
   // M540 S - Abort on endstop hit when SD printing
-  #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
+  #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
     MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &planner.abort_on_endstop_hit);
   #endif
 

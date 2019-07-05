@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 /**
  * Arduino Mega with RAMPS v1.4 (or v1.3) pin assignments
@@ -229,7 +228,7 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#if HAS_CUTTER && !PIN_EXISTS(SPINDLE_LASER_ENA)
+#if ENABLED(SPINDLE_LASER_ENABLE) && !PIN_EXISTS(SPINDLE_LASER_ENA)
   #if !defined(NUM_SERVOS) || NUM_SERVOS == 0 // try to use servo connector first
     #define SPINDLE_LASER_ENA_PIN     4   // Pin should have a pullup/pulldown!
     #define SPINDLE_LASER_PWM_PIN     6   // MUST BE HARDWARE PWM
@@ -269,9 +268,9 @@
   #endif
 #endif
 
-#if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
+#if ENABLED(HAVE_TMC2208)
   /**
-   * TMC2208/TMC2209 stepper drivers
+   * TMC2208 stepper drivers
    *
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
@@ -323,7 +322,7 @@
 // LCDs and Controllers //
 //////////////////////////
 
-#if HAS_SPI_LCD
+#if ENABLED(ULTRA_LCD)
 
   //
   // LCD Display output pins
@@ -566,4 +565,4 @@
     #endif
   #endif // NEWPANEL
 
-#endif // HAS_SPI_LCD
+#endif // ULTRA_LCD

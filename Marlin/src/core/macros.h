@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,13 +56,7 @@
 #define NANOSECONDS_PER_CYCLE (1000000000.0 / F_CPU)
 
 // Remove compiler warning on an unused variable
-#ifndef UNUSED
-  #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
-    #define UNUSED(X) (void)X
-  #else
-    #define UNUSED(x) ((void)(x))
-  #endif
-#endif
+#define UNUSED(X) (void)X
 
 // Macros to make a string from a macro
 #define STRINGIFY_(M) #M
@@ -83,6 +77,10 @@
 #define TEST32(n,b) !!((n)&_BV32(b))
 #define SBI32(n,b) (n |= _BV32(b))
 #define CBI32(n,b) (n &= ~_BV32(b))
+
+// Macros for maths shortcuts
+#undef M_PI
+#define M_PI 3.14159265358979323846f
 
 #define RADIANS(d) ((d)*float(M_PI)/180.0f)
 #define DEGREES(r) ((r)*180.0f/float(M_PI))

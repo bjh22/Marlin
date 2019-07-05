@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 #ifndef TARGET_LPC1768
   #error "Oops!  Make sure you have the LPC1768 environment selected in your IDE."
@@ -95,7 +94,7 @@
  * by redrawing the screen after SD card accesses.
  */
 
-#if HAS_SPI_LCD
+#if ENABLED(ULTRA_LCD)
   #define BEEPER_PIN       P1_30
   #define BTN_EN1          P3_26
   #define BTN_EN2          P3_25
@@ -119,30 +118,39 @@
 // MKS_MINI_12864 strongly prefers the SD card on the display and
 // requires jumpers on the SKR V1.1 board as documented here:
 // https://www.facebook.com/groups/505736576548648/permalink/630639874058317/
-#ifndef SDCARD_CONNECTION
+#if !ANY(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
   #if ENABLED(MKS_MINI_12864)
-    #define SDCARD_CONNECTION LCD
+    #define LPC_SD_LCD
+    #undef USB_SD_DISABLED
+    #define USB_SD_ONBOARD
   #else
-    #define SDCARD_CONNECTION ONBOARD
+    #define USB_SD_ONBOARD
+    #define LPC_SD_ONBOARD
   #endif
 #endif
 
-#define ONBOARD_SD_CS_PIN  P0_06   // Chip select for "System" SD card
+#if ENABLED(LPC_SD_LCD)
 
-#if SD_CONNECTION_IS(LCD)
   #define SCK_PIN          P0_15
   #define MISO_PIN         P0_17
   #define MOSI_PIN         P0_18
-  #define SS_PIN           P1_23
-#elif SD_CONNECTION_IS(ONBOARD)
-  #undef SD_DETECT_PIN
-  #define SD_DETECT_PIN    P0_27
+  #define SS_PIN           P1_23   // Chip select for SD card used by Marlin
+  #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
+
+#elif ENABLED(LPC_SD_ONBOARD)
+
+  #if ENABLED(USB_SD_ONBOARD)
+    // When sharing the SD card with a PC we want the menu options to
+    // mount/unmount the card and refresh it. So we disable card detect.
+    #define SHARED_SD_CARD
+    #undef SD_DETECT_PIN // there is also no detect pin for the onboard card
+  #endif
   #define SCK_PIN          P0_07
   #define MISO_PIN         P0_08
   #define MOSI_PIN         P0_09
-  #define SS_PIN           ONBOARD_SD_CS_PIN
-#elif SD_CONNECTION_IS(CUSTOM_CABLE)
-  #error "No custom SD drive cable defined for this board."
+  #define SS_PIN           P0_06   // Chip select for SD card used by Marlin
+  #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
+
 #endif
 
 // Trinamic driver support
@@ -224,11 +232,11 @@
     // EXAMPLES
 
     // Example 1: No LCD attached or a TFT style display using the AUX header RX/TX pins.
-    //            SDCARD_CONNECTION must not be 'LCD'. Nothing should be connected to EXP1/EXP2.
+    //            LPC_SD_LCD must not be enabled. Nothing should be connected to EXP1/EXP2.
     //#define SKR_USE_LCD_PINS_FOR_CS
     #if ENABLED(SKR_USE_LCD_PINS_FOR_CS)
-      #if SD_CONNECTION_IS(LCD)
-        #error "SDCARD_CONNECTION must not be 'LCD' with SKR_USE_LCD_PINS_FOR_CS."
+      #if ENABLED(LPC_SD_LCD)
+        #error "LPC_SD_LCD must not be enabled with SKR_USE_LCD_PINS_FOR_CS."
       #endif
       #define X_CS_PIN      P1_23
       #define Y_CS_PIN      P3_26
@@ -239,11 +247,11 @@
 
     // Example 2: A REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
     //            The SD card reader attached to the LCD (if present) can't be used because
-    //            the pins will be in use. So SDCARD_CONNECTION must not be 'LCD'.
+    //            the pins will be in use. So LPC_SD_LCD must not be defined.
     //#define SKR_USE_LCD_SD_CARD_PINS_FOR_CS
     #if ENABLED(SKR_USE_LCD_SD_CARD_PINS_FOR_CS)
-      #if SD_CONNECTION_IS(LCD)
-        #error "SDCARD_CONNECTION must not be 'LCD' with SKR_USE_LCD_SD_CARD_PINS_FOR_CS."
+      #if ENABLED(LPC_SD_LCD)
+        #error "LPC_SD_LCD must not be enabled with SKR_USE_LCD_SD_CARD_PINS_FOR_CS."
       #endif
       #define X_CS_PIN      P0_02
       #define Y_CS_PIN      P0_03

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,12 +21,12 @@
  */
 
 /**
- * Adapted from Arduino Sd2Card Library
- * Copyright (c) 2009 by William Greiman
+ * Originally from Arduino Sd2Card Library
+ * Copyright (C) 2009 by William Greiman
  */
 
 /**
- * HAL for AVR - SPI functions
+ * Description: HAL for AVR - SPI functions
  */
 
 #ifdef __AVR__
@@ -37,23 +37,34 @@
 
 #include "../../inc/MarlinConfig.h"
 
-void spiBegin(void) {
-  OUT_WRITE(SS_PIN, HIGH);
+// --------------------------------------------------------------------------
+// Public Variables
+// --------------------------------------------------------------------------
+
+
+// --------------------------------------------------------------------------
+// Public functions
+// --------------------------------------------------------------------------
+
+void spiBegin (void) {
+  SET_OUTPUT(SS_PIN);
+  WRITE(SS_PIN, HIGH);
   SET_OUTPUT(SCK_PIN);
   SET_INPUT(MISO_PIN);
   SET_OUTPUT(MOSI_PIN);
 
   #if DISABLED(SOFTWARE_SPI)
     // SS must be in output mode even it is not chip select
-    //SET_OUTPUT(SS_PIN);
+    SET_OUTPUT(SS_PIN);
     // set SS high - may be chip select for another SPI device
-    //#if SET_SPI_SS_HIGH
-      //WRITE(SS_PIN, HIGH);
-    //#endif
+    #if SET_SPI_SS_HIGH
+      WRITE(SS_PIN, HIGH);
+    #endif  // SET_SPI_SS_HIGH
     // set a default rate
     spiInit(1);
-  #endif
+  #endif  // SOFTWARE_SPI
 }
+
 
 #if DISABLED(SOFTWARE_SPI, FORCE_SOFT_SPI)
 
@@ -173,32 +184,28 @@ void spiBegin(void) {
     // Invert the SPI2X bit
     clockDiv ^= 0x1;
 
-    SPCR = _BV(SPE) | _BV(MSTR) | ((bitOrder == LSBFIRST) ? _BV(DORD) : 0) |
+    SPCR = _BV(SPE) | _BV(MSTR) | ((bitOrder == SPI_LSBFIRST) ? _BV(DORD) : 0) |
       (dataMode << CPHA) | ((clockDiv >> 1) << SPR0);
     SPSR = clockDiv | 0x01;
   }
 
 
-#else // SOFTWARE_SPI || FORCE_SOFT_SPI
+#else
 
-  //------------------------------------------------------------------------------
-  // Software SPI
-  //------------------------------------------------------------------------------
-
-  // nop to tune soft SPI timing
+  /** nop to tune soft SPI timing */
   #define nop asm volatile ("\tnop\n")
 
-  // Set SPI rate
+  /** Set SPI rate */
   void spiInit(uint8_t spiRate) {
     UNUSED(spiRate);  // nothing to do
   }
 
-  // Begin SPI transaction, set clock, bit order, data mode
+  /** Begin SPI transaction, set clock, bit order, data mode */
   void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
     UNUSED(spiBeginTransaction);  // nothing to do
   }
 
-  // Soft SPI receive byte
+  /** Soft SPI receive byte */
   uint8_t spiRec() {
     uint8_t data = 0;
     // no interrupts during byte receive - about 8µs
@@ -223,13 +230,13 @@ void spiBegin(void) {
     return data;
   }
 
-  // Soft SPI read data
+  /** Soft SPI read data */
   void spiRead(uint8_t* buf, uint16_t nbyte) {
     for (uint16_t i = 0; i < nbyte; i++)
       buf[i] = spiRec();
   }
 
-  // Soft SPI send byte
+  /** Soft SPI send byte */
   void spiSend(uint8_t data) {
     // no interrupts during byte send - about 8µs
     cli();
@@ -250,13 +257,13 @@ void spiBegin(void) {
     sei();
   }
 
-  // Soft SPI send block
+  /** Soft SPI send block */
   void spiSendBlock(uint8_t token, const uint8_t* buf) {
     spiSend(token);
     for (uint16_t i = 0; i < 512; i++)
       spiSend(buf[i]);
   }
 
-#endif // SOFTWARE_SPI || FORCE_SOFT_SPI
+#endif // SOFTWARE_SPI, FORCE_SOFT_SPI
 
 #endif // __AVR__

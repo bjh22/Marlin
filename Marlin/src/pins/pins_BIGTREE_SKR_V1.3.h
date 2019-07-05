@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 #ifndef TARGET_LPC1768
   #error "Oops!  Make sure you have the LPC1768 environment selected in your IDE."
@@ -108,9 +107,9 @@
   #define TMC_SW_SCK       P0_04
 #endif
 
-#if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
+#if HAS_DRIVER(TMC2208)
     /**
-   * TMC2208/TMC2209 stepper drivers
+   * TMC2208 stepper drivers
    *
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
@@ -170,17 +169,17 @@
 #define FAN_PIN            P2_03
 #define HEATER_BED_PIN     P2_05
 
-/**
- *              _____                                             _____
- *          NC | · · | GND                                    5V | · · | GND
- *       RESET | · · | 1.31(SD_DETECT)             (LCD_D7) 1.23 | · · | 1.22 (LCD_D6)
- *  (MOSI)0.18 | · · | 3.25(BTN_EN2)               (LCD_D5) 1.21 | · · | 1.20 (LCD_D4)
- * (SD_SS)0.16 | · · | 3.26(BTN_EN1)               (LCD_RS) 1.19 | · · | 1.18 (LCD_EN)
- *   (SCK)0.15 | · · | 0.17(MISO)                 (BTN_ENC) 0.28 | · · | 1.30 (BEEPER)
- *              -----                                             -----
- *              EXP2                                              EXP1
- */
-#if HAS_SPI_LCD
+/*
+|               _____                                             _____
+|           NC | · · | GND                                    5V | · · | GND
+|        RESET | · · | 1.31(SD_DETECT)             (LCD_D7) 1.23 | · · | 1.22 (LCD_D6)
+|   (MOSI)0.18 | · · | 3.25(BTN_EN2)               (LCD_D5) 1.21 | · · | 1.20 (LCD_D4)
+|  (SD_SS)0.16 | · · | 3.26(BTN_EN1)               (LCD_RS) 1.19 | · · | 1.18 (LCD_EN)
+|    (SCK)0.15 | · · | 0.17(MISO)                 (BTN_ENC) 0.28 | · · | 1.30 (BEEPER)
+|               ￣￣                                               ￣￣
+|               EXP2                                              EXP1
+*/
+#if ENABLED(ULTRA_LCD)
   #define BEEPER_PIN       P1_30   // (37) not 5V tolerant
   #define BTN_ENC          P0_28   // (58) open-drain
 
@@ -250,38 +249,48 @@
 
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // ULTRA_LCD
 
 //
 // SD Support
 //
 
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION LCD
+#if !ANY(LPC_SD_LCD, LPC_SD_ONBOARD, LPC_SD_CUSTOM_CABLE)
+  #undef USB_SD_DISABLED
+  #define USB_SD_ONBOARD
+  #define LPC_SD_LCD
 #endif
 
-#define ONBOARD_SD_CS_PIN  P0_06   // Chip select for "System" SD card
+#if ENABLED(LPC_SD_LCD)
 
-#if SD_CONNECTION_IS(LCD)
   #define SCK_PIN          P0_15
   #define MISO_PIN         P0_17
   #define MOSI_PIN         P0_18
-  #define SS_PIN           P0_16
-#elif SD_CONNECTION_IS(ONBOARD)
-  #undef SD_DETECT_PIN
-  #define SD_DETECT_PIN    P0_27
+  #define SS_PIN           P0_16   // Chip select for SD card used by Marlin
+  #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
+
+#elif ENABLED(LPC_SD_ONBOARD)
+
+  #if ENABLED(USB_SD_ONBOARD)
+    // When sharing the SD card with a PC we want the menu options to
+    // mount/unmount the card and refresh it. So we disable card detect.
+    #define SHARED_SD_CARD
+    #undef SD_DETECT_PIN
+    //#define SD_DETECT_PIN  P0_27   // (57) open-drain
+  #endif
+
   #define SCK_PIN          P0_07
   #define MISO_PIN         P0_08
   #define MOSI_PIN         P0_09
-  #define SS_PIN           ONBOARD_SD_CS_PIN
-#elif SD_CONNECTION_IS(CUSTOM_CABLE)
-  #error "No custom SD drive cable defined for this board."
+  #define SS_PIN           P0_06   // Chip select for SD card used by Marlin
+  #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
+
 #endif
 
-/**
- * Special pins
- *   P1_30  (37) (NOT 5V tolerant)
- *   P1_31  (49) (NOT 5V tolerant)
- *   P0_27  (57) (Open collector)
- *   P0_28  (58) (Open collector)
- */
+ /**
+  * Special pins
+  *   P1_30  (37) (NOT 5V tolerant)
+  *   P1_31  (49) (NOT 5V tolerant)
+  *   P0_27  (57) (Open collector)
+  *   P0_28  (58) (Open collector)
+  */
