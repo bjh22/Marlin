@@ -282,11 +282,9 @@ float bilinear_z_offset(const float raw[XYZ]) {
               ry = raw[Y_AXIS] - bilinear_start[Y_AXIS];
 
   #if ENABLED(EXTRAPOLATE_BEYOND_GRID)
-    // Keep using the last grid box
-    #define FAR_EDGE_OR_BOX 2
+    #define FAR_EDGE_OR_BOX 2   // Keep using the last grid box
   #else
-    // Just use the grid far edge
-    #define FAR_EDGE_OR_BOX 1
+    #define FAR_EDGE_OR_BOX 1   // Just use the grid far edge
   #endif
 
   if (last_x != rx) {
@@ -369,10 +367,10 @@ float bilinear_z_offset(const float raw[XYZ]) {
         cy1 = CELL_INDEX(Y, current_position[Y_AXIS]),
         cx2 = CELL_INDEX(X, destination[X_AXIS]),
         cy2 = CELL_INDEX(Y, destination[Y_AXIS]);
-    cx1 = constrain(cx1, 0, ABL_BG_POINTS_X - 2);
-    cy1 = constrain(cy1, 0, ABL_BG_POINTS_Y - 2);
-    cx2 = constrain(cx2, 0, ABL_BG_POINTS_X - 2);
-    cy2 = constrain(cy2, 0, ABL_BG_POINTS_Y - 2);
+    LIMIT(cx1, 0, ABL_BG_POINTS_X - 2);
+    LIMIT(cy1, 0, ABL_BG_POINTS_Y - 2);
+    LIMIT(cx2, 0, ABL_BG_POINTS_X - 2);
+    LIMIT(cy2, 0, ABL_BG_POINTS_Y - 2);
 
     // Start and end in the same cell? No split needed.
     if (cx1 == cx2 && cy1 == cy2) {
